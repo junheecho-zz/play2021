@@ -1,40 +1,67 @@
 import sys
-import math
 
 def f(n, ms):
-    all_jewels = sum(ms)
-    minimum_jewels = all_jewels // n
-    ns = []
-    '''
-    5 * (7/11) = 3.xx
-    5 * (4/11) = 1.xx
-    7 / 3 = 2.33 (+1) => 3
-    4 / 2 = 2 
-    '''
-    for k in ms:
-        assigned_people = math.floor(n * (k / all_jewels))
-        if assigned_people < 1:
-            assigned_people = 1 
-        maximum_jewels_per_person = math.ceil(k / assigned_people)
-        ns += [maximum_jewels_per_person]
-    print(ns)
-    return max(ns)
+    # ms is sorted by ascending order
+    ms.sort()
+    while len(ms) < n:
+        max_jewel = ms[-1]
+        if max_jewel == 1: break
+        h0 = max_jewel//2
+        h1 = max_jewel - h0
+        del ms[-1]
+        for v in [h0,h1]:
+            i = binary_search(ms, v)
+            ms.insert(i, v)
 
-def test():
-    # 3.18, 1.81
-    # [2,2,3], [2,2]
-    
-    assert f(5, [7,4]) == 3
-    
-    # 4.54, 0.45
-    # [3,3,2,2], [1]
-    assert f(5, [10,1]) == 3
+    return max(ms)
+
+def binary_search(ms, v):
+    n = len(ms)
+    i = n // 2
+    while i < n and i >= 0:
+        m1 = ms[i]
+        if v > m1:
+            i = (i+1+n) // 2
+            continue
+        m0 = ms[i-1] if i > 0 else v
+        if v >= m0 and v <=m1:
+            break
+        if v > m1:
+            i = (i + n) // 2
+        elif v <= m1:
+            i = i // 2
+    return i
+
+assert binary_search([1], 5) == 1
+assert binary_search([1,2,3,4], 3) == 2
+assert binary_search([1,2,3,4], 2) == 2
+assert binary_search([1,2,3,4], 1) == 1
+assert binary_search([1,2,3,4], 0) == 0
+
+assert f(5, [7,4]) == 3
+assert f(5, [10,1]) == 3
 
 def get_ints(): return map(int, sys.stdin.readline().strip().split())
 def get_int(): return int(sys.stdin.readline())
-    
+
+def time_check(counts):
+    import random
+    import time
+
+    for i in range(counts):
+        n = random.randint(10**3, 10**5)
+
+        jewels = [random.randint(1, 300000) for _ in range(n//2)]
+        print ('|jewels| =', n)
+        start = time.time()
+        r = f(n, jewels)
+        elap = time.time()-start
+        print ('len', len(jewels), 'time', elap, 'ret',r)
+
 if __name__ == '__main__':
-    test()
+    time_check(10)
     n,m = get_ints()
     ks = [get_int() for _ in range(m)]
     print(f(n, ks))
+
+

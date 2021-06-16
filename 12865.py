@@ -33,7 +33,6 @@ def f(k, items):
     print ('ret', dp[k]) 
     return dp[k]
 
-assert f(7, [[9, 2], [2, 1], [8, 9]]) == 1
 # case 1. take O X X
 # case 2. take X O X
 # case 3. take X X O

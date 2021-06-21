@@ -20,19 +20,30 @@ def f(k, items):
     14
     """
     print ('items', items)
-    dp = [0] * (k+1)
-    for i in range(k+1):
-        for w, v in items:
-            y = 0
-            if i - w >= 0 and w + i <= k:
-                y = dp[i-w] + v
-                print (f'i={i}, [{w},{v}]: {y} = dp[{i}-{w}] + {v} ')
-            dp[i] = max (y, dp[i])
+    c=len(items)
+    d=[[0]*(c) for _ in range(k+1)]
 
-    print ('dp', dp)
-    print ('ret', dp[k]) 
-    return dp[k]
+    #d[k][ci] 는 k 사이즈에 ci 아이템들을 사용해서 담을수있는최대가치
+    for i in range(1, k+1):
+        for ci, (w, v) in enumerate(items):
+            j=ci-1 if ci-1>=0 else 0
+            # not take
+            if i-w < 0:
+                y = d[i][j]
+                y0,y1,y2=-1,-1,-1
+            # take maximum 
+            else:
+                y0 = d[i-1][ci]
+                y1 = d[i-w][j] + v
+                y2 = d[i][j]
+                y = max(y0, y1,y2)
+            
+            print (f'[{i}][{ci}]', 'y',y, y0, y1, y2)
+            d[i][ci] = y
+    print ('d', d)
+    return d[k][c-1]
 
+assert f(7, [[2, 2], [1, 1], [3, 9]]) == 12
 # case 1. take O X X
 # case 2. take X O X
 # case 3. take X X O
@@ -44,7 +55,7 @@ assert f(7, [[9, 2], [2, 1], [8, 9]]) == 1
 assert f(7, [[9, 3], [9, 2], [6, 1]]) == 1
 assert f(7, [[3, 3], [4, 5], [3, 2]]) == 8
 assert f(7, [[3, 7], [4, 9], [3, 8]]) == 17
-assert f(7, [[2, 2], [2, 1], [3, 9]]) == 12
+assert f(7, [[2, 2], [1, 1], [3, 9]]) == 12
 
 assert f(7, [
     [6,13],
